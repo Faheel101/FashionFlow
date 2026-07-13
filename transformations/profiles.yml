@@ -1,0 +1,13 @@
+fashionflow:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: "de-project-502311"
+      dataset: fashionflow_staging
+      location: US
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      threads: 4
+      timeout_seconds: 300
+      retries: 3

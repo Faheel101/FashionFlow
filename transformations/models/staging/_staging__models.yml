@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: stg_sample
+    description: "Sample model to verify dbt + BigQuery connectivity. Remove after verification."
+    columns:
+      - name: id
+        description: "Static ID"
+      - name: project_name
+        description: "Project name"
+      - name: verified_at
+        description: "Timestamp of verification"
