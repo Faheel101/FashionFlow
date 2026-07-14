@@ -1,0 +1,109 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw commerce data loaded by dlt from the FashionFlow source API."
+    database: "{{ var('source_database') }}"
+    schema: "{{ var('source_schema') }}"
+    loaded_at_field: _dlt_load_id
+    tables:
+      - name: customers
+        description: "Raw customer profiles with contact and address information."
+        columns:
+          - name: id
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: email
+            tests:
+              - unique
+              - not_null
+
+      - name: products
+        description: "Raw fashion product catalog with pricing and attributes."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: sku
+            tests:
+              - unique
+              - not_null
+
+      - name: orders
+        description: "Raw purchase orders with status and financial breakdown."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: order_number
+            tests:
+              - unique
+              - not_null
+          - name: customer_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'customers')
+                  field: id
+
+      - name: order_items
+        description: "Raw order line items linking orders to products."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: order_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'orders')
+                  field: id
+          - name: product_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'products')
+                  field: id
+
+      - name: payments
+        description: "Raw payment transactions linked to orders."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: order_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'orders')
+                  field: id
+          - name: transaction_id
+            tests:
+              - unique
+              - not_null
+
+      - name: refunds
+        description: "Raw refund records linked to orders and payments."
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: order_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'orders')
+                  field: id
+          - name: payment_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'payments')
+                  field: id

@@ -1,12 +1,68 @@
 version: 2
 
 models:
-  - name: stg_sample
-    description: "Sample model to verify dbt + BigQuery connectivity. Remove after verification."
+  - name: stg_customers
+    description: "Cleaned customer profiles. Standardized names, typed timestamps."
     columns:
-      - name: id
-        description: "Static ID"
-      - name: project_name
-        description: "Project name"
-      - name: verified_at
-        description: "Timestamp of verification"
+      - name: customer_id
+        description: "Primary key"
+        tests: [unique, not_null]
+      - name: email
+        tests: [unique, not_null]
+      - name: full_name
+        description: "Concatenated first + last name"
+
+  - name: stg_products
+    description: "Cleaned product catalog. Standardized pricing, typed attributes."
+    columns:
+      - name: product_id
+        description: "Primary key"
+        tests: [unique, not_null]
+      - name: sku
+        tests: [unique, not_null]
+      - name: gross_margin
+        description: "Calculated: (price - cost_price) / price"
+
+  - name: stg_orders
+    description: "Cleaned orders. Standardized status, typed timestamps and amounts."
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests: [unique, not_null]
+      - name: order_number
+        tests: [unique, not_null]
+      - name: customer_id
+        tests: [not_null]
+
+  - name: stg_order_items
+    description: "Cleaned order line items with calculated fields."
+    columns:
+      - name: order_item_id
+        description: "Primary key"
+        tests: [unique, not_null]
+      - name: order_id
+        tests: [not_null]
+      - name: product_id
+        tests: [not_null]
+
+  - name: stg_payments
+    description: "Cleaned payment transactions."
+    columns:
+      - name: payment_id
+        description: "Primary key"
+        tests: [unique, not_null]
+      - name: order_id
+        tests: [not_null]
+      - name: transaction_id
+        tests: [unique, not_null]
+
+  - name: stg_refunds
+    description: "Cleaned refund records."
+    columns:
+      - name: refund_id
+        description: "Primary key"
+        tests: [unique, not_null]
+      - name: order_id
+        tests: [not_null]
+      - name: payment_id
+        tests: [not_null]
