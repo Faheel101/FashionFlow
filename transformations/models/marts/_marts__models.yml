@@ -4,38 +4,33 @@ models:
   - name: fct_orders
     description: >
       Order-level fact table combining orders, customers, line items,
-      payments, and refunds into a single analytical model. Each row
-      represents one order with aggregated item metrics, payment info,
-      refund totals, and net revenue.
+      payments, and refunds into a single analytical model.
     columns:
       - name: order_id
-        description: "Primary key — unique order identifier"
         tests: [unique, not_null]
       - name: order_number
-        description: "Human-readable order reference"
         tests: [unique, not_null]
       - name: customer_id
         tests: [not_null]
       - name: order_status
-        description: "Current order status"
         tests:
           - accepted_values:
               values: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned']
-      - name: order_status_category
-        description: "Simplified status grouping: open, in_progress, completed, closed"
-        tests:
-          - accepted_values:
-              values: ['open', 'in_progress', 'completed', 'closed']
       - name: order_total
-        description: "Total order amount including tax and shipping"
-        tests:
-          - not_null
-      - name: net_revenue
-        description: "Order total minus any refunds"
-      - name: payment_method
-        description: "Payment method used"
-      - name: has_refund
-        description: "Whether this order has any associated refunds"
+        tests: [not_null]
       - name: order_date
-        description: "Date the order was placed"
+        tests: [not_null]
+
+  - name: fct_daily_marketing_performance
+    description: >
+      Daily marketing performance fact table joining campaigns, ad sets,
+      ads, and daily metrics with calculated ROAS, CPA, and conversion rates.
+    columns:
+      - name: performance_id
+        tests: [unique, not_null]
+      - name: campaign_id
+        tests: [not_null]
+      - name: ad_id
+        tests: [not_null]
+      - name: performance_date
         tests: [not_null]

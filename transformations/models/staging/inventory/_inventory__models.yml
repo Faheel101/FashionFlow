@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: raw_inventory
+    description: "Raw inventory data loaded by dlt."
+    database: "{{ var('source_database') }}"
+    schema: "{{ var('source_schema') }}"
+    tables:
+      - name: inventory_snapshots
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: product_id
+            tests: [not_null]
+      - name: inventory_movements
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: product_id
+            tests: [not_null]
+
+models:
+  - name: stg_inventory_snapshots
+    description: "Cleaned inventory snapshot records."
+    columns:
+      - name: snapshot_id
+        tests: [unique, not_null]
+  - name: stg_inventory_movements
+    description: "Cleaned inventory movement records."
+    columns:
+      - name: movement_id
+        tests: [unique, not_null]

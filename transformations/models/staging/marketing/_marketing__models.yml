@@ -1,0 +1,52 @@
+version: 2
+
+sources:
+  - name: raw_marketing
+    description: "Raw marketing data loaded by dlt."
+    database: "{{ var('source_database') }}"
+    schema: "{{ var('source_schema') }}"
+    tables:
+      - name: campaigns
+        columns:
+          - name: id
+            tests: [unique, not_null]
+      - name: ad_sets
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: campaign_id
+            tests: [not_null]
+      - name: ads
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: ad_set_id
+            tests: [not_null]
+      - name: daily_performance
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: ad_id
+            tests: [not_null]
+
+models:
+  - name: stg_campaigns
+    description: "Cleaned campaign records with standardized fields."
+    columns:
+      - name: campaign_id
+        tests: [unique, not_null]
+  - name: stg_ad_sets
+    description: "Cleaned ad set records."
+    columns:
+      - name: ad_set_id
+        tests: [unique, not_null]
+  - name: stg_ads
+    description: "Cleaned ad records."
+    columns:
+      - name: ad_id
+        tests: [unique, not_null]
+  - name: stg_daily_performance
+    description: "Cleaned daily performance metrics."
+    columns:
+      - name: performance_id
+        tests: [unique, not_null]
