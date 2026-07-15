@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: recon_orders_vs_items
+    description: "Reconciliation: order subtotals vs sum of line item totals."
+    config:
+      schema: mart
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+
+  - name: recon_payments_vs_refunds
+    description: "Reconciliation: payment amounts vs refund amounts per order."
+    config:
+      schema: mart
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+
+  - name: recon_marketing_spend_vs_revenue
+    description: "Reconciliation: monthly marketing spend vs attributed revenue by platform."

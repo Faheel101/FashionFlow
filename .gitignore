@@ -57,6 +57,7 @@ transformations/target/
 transformations/dbt_packages/
 transformations/logs/
 transformations/dbt_modules/
+transformations/.user.yml
 
 # =============================================================================
 # dlt

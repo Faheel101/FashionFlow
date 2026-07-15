@@ -1,5 +1,5 @@
 name: fashionflow
-version: "2.0.0"
+version: "3.0.0"
 config-version: 2
 
 profile: fashionflow
@@ -31,6 +31,8 @@ models:
       +schema: mart
       +materialized: table
       +tags: ["mart"]
+      reconciliation:
+        +tags: ["mart", "reconciliation"]
 
 vars:
   source_database: "de-project-502311"

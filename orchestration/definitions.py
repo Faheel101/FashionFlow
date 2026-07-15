@@ -1,15 +1,12 @@
-"""FashionFlow — Dagster definitions (multi-domain).
+"""FashionFlow — Dagster definitions (Sprint 3).
 
-Asset graph:
-    raw_commerce_data ──┐
-    raw_marketing_data ─┤── dbt_models
-    raw_inventory_data ─┘
-
-Jobs:
-    commerce_pipeline   — Commerce ingestion + dbt
-    marketing_pipeline  — Marketing ingestion + dbt
-    inventory_pipeline  — Inventory ingestion + dbt
-    full_pipeline       — All domains
+Features:
+    - Multi-domain assets (commerce, marketing, inventory)
+    - dbt transformation asset
+    - Asset checks (row counts, mart validation)
+    - Retry policies on all assets
+    - Per-domain and full pipeline jobs
+    - Backfill job for historical reprocessing
 """
 
 import dagster as dg
@@ -17,8 +14,24 @@ import dagster as dg
 from orchestration.assets.ingestion import raw_commerce_data
 from orchestration.assets.domain_ingestion import raw_marketing_data, raw_inventory_data
 from orchestration.assets.transformations import dbt_models
+from orchestration.assets.checks import ALL_ASSET_CHECKS
 
-all_assets = [raw_commerce_data, raw_marketing_data, raw_inventory_data, dbt_models]
+# ── Retry Policy ─────────────────────────────────────────────────────────────
+
+default_retry = dg.RetryPolicy(
+    max_retries=2,
+    delay=30,
+    backoff=dg.Backoff.EXPONENTIAL,
+    jitter=dg.Jitter.PLUS_MINUS,
+)
+
+# Apply retry to all assets
+all_assets = [
+    raw_commerce_data.with_retry_policy(default_retry),
+    raw_marketing_data.with_retry_policy(default_retry),
+    raw_inventory_data.with_retry_policy(default_retry),
+    dbt_models.with_retry_policy(default_retry),
+]
 
 # ── Jobs ─────────────────────────────────────────────────────────────────────
 
@@ -46,13 +59,27 @@ inventory_pipeline_job = dg.define_asset_job(
     description="Inventory ingestion → dbt",
 )
 
+# Backfill job — same as full but named for clarity
+backfill_job = dg.define_asset_job(
+    name="backfill_pipeline",
+    selection=dg.AssetSelection.all(),
+    description="Historical backfill: reprocess all domains",
+    config={
+        "execution": {"config": {"multiprocess": {"max_concurrent": 1}}},
+    },
+)
+
+# ── Definitions ──────────────────────────────────────────────────────────────
+
 defs = dg.Definitions(
     assets=all_assets,
+    asset_checks=ALL_ASSET_CHECKS,
     jobs=[
         full_pipeline_job,
         commerce_pipeline_job,
         marketing_pipeline_job,
         inventory_pipeline_job,
+        backfill_job,
     ],
     schedules=[],
     sensors=[],
